@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["DOM", "Es2015.Proxy", "ESNext", "DOM.Iterable"],
+    "preserveWatchOutput": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "moduleResolution": "node",
+      "module": "CommonJS"
+    }
+  }
+}

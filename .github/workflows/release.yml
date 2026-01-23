@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Release
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.release_created }}
+    steps:
+      - id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          release-type: node
+
+  Publish:
+    needs: [Release]
+    if: needs.release.outputs.released == 'true'
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit
