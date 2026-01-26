@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/buka-inc/npm.error-codes/compare/v1.0.1...v1.0.2) (2026-01-26)
+
+
+### Performance Improvements
+
+* error codes document ([8a29452](https://github.com/buka-inc/npm.error-codes/commit/8a29452aa593cf148d37a8a767ac98d700b03ec4))
+
 ## [1.0.1](https://github.com/buka-inc/npm.error-codes/compare/v1.0.0...v1.0.1) (2026-01-26)
 
 
