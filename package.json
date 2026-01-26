@@ -29,8 +29,16 @@
     "error-codes"
   ],
   "author": "Val.istar.Guo <val.istar.guo@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.26.2",
+  "homepage": "https://github.com/buka-inc/npm.error-codes#readme",
+  "bugs": {
+    "url": "https://github.com/buka-inc/npm.error-codes/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/buka-inc/npm.error-codes"
+  },
   "devDependencies": {
     "@buka/eslint-config": "^3.0.3",
     "@commitlint/cli": "^20.3.1",
