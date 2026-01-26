@@ -54,4 +54,4 @@ const parsed = ErrorCode.fromString("B0-AAAC-AAB-AAB-C");
 
 详细说明见规范文档。
 
-详见 [docs/README.md](./docs/README.md) 了解完整的错误码规范设计、位段划分、编码规则、错误类别定义和保留错误码说明。
+详见 [docs/specification.md](./docs/specification.md) 了解完整的错误码规范设计、位段划分、编码规则、错误类别定义和保留错误码说明。
