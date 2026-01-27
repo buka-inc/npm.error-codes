@@ -17,25 +17,25 @@ yarn add @buka/error-codes
 ```typescript
 import { ErrorCode, ErrorCategory } from "@buka/error-codes";
 
-const errorCode = new ErrorCode(
-  ErrorCategory.BUSINESS, // 错误类别
-  1, // 系统 ID
-  100, // 模块 ID
-  42, // 序列号
-);
+const errorCode = new ErrorCode({
+  category: ErrorCategory.BUSINESS, // 错误类别
+  systemId: 1, // 系统 ID
+  moduleId: 100, // 模块 ID
+  sequenceId: 42, // 序列号
+});
 ```
 
 ### 转换格式
 
 ```typescript
 // 转换为可读格式字符串
-const readable = errorCode.toString(); // B0-AAAC-AAB-AAB-C
+const readable = errorCode.toString(); // B0-AAAC-AAAB-AAA
 
 // 转换为 64 位整数
 const bigint = errorCode.toBigInt();
 
 // 从可读格式解析
-const parsed = ErrorCode.fromString("B0-AAAC-AAB-AAB-C");
+const parsed = ErrorCode.fromString("B0-AAAC-AAAB-AAA");
 ```
 
 ### 错误类别

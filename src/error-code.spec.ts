@@ -28,10 +28,10 @@ describe('ErrorCode', () => {
 
     it('应该拒绝无效的 moduleId', () => {
       expect(() => new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: -1, sequenceId: 0 })).toThrow(
-        'Module ID must be between 0 and 32767, got -1',
+        'Module ID must be between 0 and 1048575, got -1',
       )
-      expect(() => new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 2 ** 15, sequenceId: 0 })).toThrow(
-        `Module ID must be between 0 and 32767, got ${2 ** 15}`,
+      expect(() => new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 2 ** 20, sequenceId: 0 })).toThrow(
+        `Module ID must be between 0 and 1048575, got ${2 ** 20}`,
       )
     })
 
@@ -102,10 +102,10 @@ describe('ErrorCode', () => {
   })
 
   describe('toString', () => {
-    it('应该生成正确格式的字符串: XX-XXXX-XXX-XXX-X', () => {
+    it('应该生成正确格式的字符串: XX-XXXX-XXXX-XXX', () => {
       const errorCode = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 100, moduleId: 50, sequenceId: 200, version: 1 })
       const str = errorCode.toString()
-      expect(str).toMatch(/^[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{3}-[0-9A-Z]{3}-[0-9A-Z]$/)
+      expect(str).toMatch(/^[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{3}$/)
     })
 
     it('应该只使用 Crockford Base32 字符', () => {
@@ -118,13 +118,13 @@ describe('ErrorCode', () => {
     it('应该生成固定长度的字符串 (包括连字符)', () => {
       const errorCode = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 })
       const str = errorCode.toString()
-      expect(str.length).toBe(17) // 2-4-3-3-1 = 13 字符 + 4 个连字符
+      expect(str.length).toBe(16) // 2-4-4-3 = 13 字符 + 3 个连字符
     })
 
     it('小数值应该用前导零填充', () => {
       const errorCode = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 })
       const str = errorCode.toString()
-      expect(str).toMatch(/^[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{3}-[0-9A-Z]{3}-[0-9A-Z]$/)
+      expect(str).toMatch(/^[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{3}$/)
     })
   })
 
@@ -167,33 +167,24 @@ describe('ErrorCode', () => {
     })
 
     it('应该拒绝包含无效字符的字符串', () => {
-      expect(() => ErrorCode.fromString('A0-AAAA-AAA-AAA-I')).toThrow(
+      expect(() => ErrorCode.fromString('A0-AAAA-AAAA-AAI')).toThrow(
         'Invalid Crockford Base32 character: I',
       )
-      expect(() => ErrorCode.fromString('A0-AAAA-AAA-AAA-L')).toThrow(
+      expect(() => ErrorCode.fromString('A0-AAAA-AAAA-AAL')).toThrow(
         'Invalid Crockford Base32 character: L',
       )
-      expect(() => ErrorCode.fromString('A0-AAAA-AAA-AAA-O')).toThrow(
+      expect(() => ErrorCode.fromString('A0-AAAA-AAAA-AAO')).toThrow(
         'Invalid Crockford Base32 character: O',
       )
-      expect(() => ErrorCode.fromString('A0-AAAA-AAA-AAA-U')).toThrow(
+      expect(() => ErrorCode.fromString('A0-AAAA-AAAA-AAU')).toThrow(
         'Invalid Crockford Base32 character: U',
       )
-    })
-
-    it('应该拒绝 CRC 校验失败的字符串', () => {
-      const original = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 100, moduleId: 50, sequenceId: 200, version: 1 })
-      const str = original.toString()
-      // 修改最后一个字符 (CRC)
-      const corrupted = str.slice(0, -1) + (str.slice(-1) === '0' ? '1' : '0')
-
-      expect(() => ErrorCode.fromString(corrupted)).toThrow('CRC validation failed')
     })
 
     it('往返转换应该保持一致性', () => {
       const testCases = [
         new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 }),
-        new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 1048575, moduleId: 32767, sequenceId: 32767, version: 15 }),
+        new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 1048575, moduleId: 1048575, sequenceId: 32767, version: 15 }),
         new ErrorCode({ category: ErrorCategory.VALIDATION, systemId: 12345, moduleId: 6789, sequenceId: 10111, version: 5 }),
         new ErrorCode({ category: ErrorCategory.SYSTEM, systemId: 999, moduleId: 888, sequenceId: 777, version: 7 }),
       ]
@@ -215,20 +206,13 @@ describe('ErrorCode', () => {
 
     it('应该拒绝无效的错误码字符串', () => {
       expect(ErrorCode.isValid('INVALID')).toBe(false)
-      expect(ErrorCode.isValid('A0-AAAA-AAA-AAA-AA')).toBe(false)
+      expect(ErrorCode.isValid('A0-AAAA-AAAA-AAAA')).toBe(false)
       expect(ErrorCode.isValid('')).toBe(false)
     })
 
     it('应该拒绝包含无效字符的字符串', () => {
-      expect(ErrorCode.isValid('A0-AAAA-AAA-AAA-I')).toBe(false)
-      expect(ErrorCode.isValid('A0-AAAA-AAA-AAA-L')).toBe(false)
-    })
-
-    it('应该拒绝 CRC 校验失败的字符串', () => {
-      const errorCode = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 1000, moduleId: 500, sequenceId: 2000, version: 2 })
-      const str = errorCode.toString()
-      const corrupted = str.slice(0, -1) + (str.slice(-1) === '0' ? '1' : '0')
-      expect(ErrorCode.isValid(corrupted)).toBe(false)
+      expect(ErrorCode.isValid('A0-AAAA-AAAI-AAA')).toBe(false)
+      expect(ErrorCode.isValid('A0-AAAA-AAAL-AAA')).toBe(false)
     })
   })
 
@@ -277,7 +261,7 @@ describe('ErrorCode', () => {
         {
           category: ErrorCategory.VALIDATION,
           systemId: 2 ** 20 - 1,
-          moduleId: 2 ** 15 - 1,
+          moduleId: 2 ** 20 - 1,
           sequenceId: 2 ** 15 - 1,
           version: 2 ** 4 - 1,
         },
@@ -291,7 +275,7 @@ describe('ErrorCode', () => {
       const testCases = [
         { category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 },
         { category: ErrorCategory.BUSINESS, systemId: 1048575, moduleId: 0, sequenceId: 0, version: 0 },
-        { category: ErrorCategory.CONFLICT, systemId: 0, moduleId: 32767, sequenceId: 0, version: 0 },
+        { category: ErrorCategory.CONFLICT, systemId: 0, moduleId: 1048575, sequenceId: 0, version: 0 },
         { category: ErrorCategory.DEGRADE, systemId: 0, moduleId: 0, sequenceId: 32767, version: 0 },
         { category: ErrorCategory.FEATURE, systemId: 0, moduleId: 0, sequenceId: 0, version: 15 },
       ]
@@ -301,43 +285,6 @@ describe('ErrorCode', () => {
         const str = errorCode.toString()
         const parsed = ErrorCode.fromString(str)
         expect(parsed.toBigInt()).toBe(errorCode.toBigInt())
-      }
-    })
-  })
-
-  describe('CRC 校验', () => {
-    it('不同的错误码应该有不同的 CRC', () => {
-      const errorCode1 = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 100, moduleId: 50, sequenceId: 200, version: 1 })
-      const errorCode2 = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 100, moduleId: 50, sequenceId: 201, version: 1 })
-
-      const crc1 = Number(errorCode1.toBigInt() & 0x1fn)
-      const crc2 = Number(errorCode2.toBigInt() & 0x1fn)
-
-      // CRC 可能相同（碰撞），但对于简单情况应该不同
-      // 这里主要是确保 CRC 被正确计算
-      expect(crc1).toBeGreaterThanOrEqual(0)
-      expect(crc1).toBeLessThan(32)
-      expect(crc2).toBeGreaterThanOrEqual(0)
-      expect(crc2).toBeLessThan(32)
-    })
-
-    it('修改任何位段都应该导致 CRC 验证失败', () => {
-      const original = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 12345, moduleId: 6789, sequenceId: 10111, version: 5 })
-      const originalStr = original.toString()
-
-      // 尝试修改字符串的不同部分（除了最后的 CRC）
-      for (let i = 0; i < originalStr.length - 2; i++) {
-        if (originalStr[i] === '-') continue
-
-        const chars = originalStr.split('')
-        const originalChar = chars[i]
-
-        // 改成不同的字符
-        chars[i] = originalChar === '0' ? '1' : '0'
-        const modifiedStr = chars.join('')
-
-        // 由于我们改变了内容但没有改 CRC，解析应该失败
-        expect(ErrorCode.isValid(modifiedStr)).toBe(false)
       }
     })
   })
