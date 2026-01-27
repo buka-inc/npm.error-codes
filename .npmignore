@@ -1,0 +1,13 @@
+/.github
+/__tests__
+/.husky
+/src
+/coverage
+.commitlintrc.yml
+.node-version
+eslint.config.mjs
+jest.config.cts
+tsconfig.json
+tsconfig.*.json
+tsup.config.ts
+pnpm-workspace.yaml
