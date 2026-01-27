@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/buka-inc/npm.error-codes/compare/v1.0.3...v1.0.4) (2026-01-27)
+
+
+### Bug Fixes
+
+* missing export files ([bb51c90](https://github.com/buka-inc/npm.error-codes/commit/bb51c9095c7ec23196a9947038cdca19d17abe7c))
+
 ## [1.0.3](https://github.com/buka-inc/npm.error-codes/compare/v1.0.2...v1.0.3) (2026-01-27)
 
 
