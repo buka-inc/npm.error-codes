@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/buka-inc/npm.error-codes/compare/v1.0.2...v1.0.3) (2026-01-27)
+
+
+### Performance Improvements
+
+* remove crc ([33ebef4](https://github.com/buka-inc/npm.error-codes/commit/33ebef4858bacc03aab3cee8350fdead27dc13c2))
+
 ## [1.0.2](https://github.com/buka-inc/npm.error-codes/compare/v1.0.1...v1.0.2) (2026-01-26)
 
 
