@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/buka-inc/npm.error-codes/compare/v1.0.4...v1.1.0) (2026-03-10)
+
+
+### Features
+
+* support base32 string as options ([4abd9ea](https://github.com/buka-inc/npm.error-codes/commit/4abd9ea8da89b6624d1ba65a38eb41aa3660869e))
+
 ## [1.0.4](https://github.com/buka-inc/npm.error-codes/compare/v1.0.3...v1.0.4) (2026-01-27)
 
 
