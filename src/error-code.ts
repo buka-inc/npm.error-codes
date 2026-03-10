@@ -29,14 +29,14 @@ export enum ErrorCategory {
 export interface ErrorCodeOptions {
   /** 错误类别 */
   category: ErrorCategory
-  /** 系统ID (0 - 1048575) */
-  systemId: number
-  /** 模块ID (0 - 1048575) */
-  moduleId: number
-  /** 序列号 (0 - 32767) */
-  sequenceId: number
-  /** 版本号，默认为0 (0 - 15) */
-  version?: number
+  /** 系统ID (0 - 1048575)，支持 number 或 Crockford Base32 字符串 */
+  systemId: number | string
+  /** 模块ID (0 - 1048575)，支持 number 或 Crockford Base32 字符串 */
+  moduleId: number | string
+  /** 序列号 (0 - 32767)，支持 number 或 Crockford Base32 字符串 */
+  sequenceId: number | string
+  /** 版本号，默认为0 (0 - 15)，支持 number 或 Crockford Base32 字符串 */
+  version?: number | string
 }
 
 /**
@@ -58,9 +58,9 @@ export interface ErrorCodeOptions {
  *
  * 示例: B0-AAAC-AAAB-AAB
  */
-export class ErrorCode {
-  private static readonly CROCKFORD_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
+import { Base32 } from './base32.js'
 
+export class ErrorCode {
   readonly category: ErrorCategory
   readonly systemId: number
   readonly moduleId: number
@@ -68,24 +68,24 @@ export class ErrorCode {
   readonly version: number
 
   constructor(options: ErrorCodeOptions) {
-    const { category, systemId, moduleId, sequenceId, version = 0 } = options
+    const { category, version = 0 } = options
     this.category = category
-    this.systemId = systemId
-    this.moduleId = moduleId
-    this.sequenceId = sequenceId
-    this.version = version
+    this.systemId = typeof options.systemId === 'string' ? Base32.decode(options.systemId) : options.systemId
+    this.moduleId = typeof options.moduleId === 'string' ? Base32.decode(options.moduleId) : options.moduleId
+    this.sequenceId = typeof options.sequenceId === 'string' ? Base32.decode(options.sequenceId) : options.sequenceId
+    this.version = typeof version === 'string' ? Base32.decode(version) : version
 
-    if (systemId < 0 || systemId >= 2 ** 20) {
-      throw new Error(`System ID must be between 0 and ${2 ** 20 - 1}, got ${systemId}`)
+    if (this.systemId < 0 || this.systemId >= 2 ** 20) {
+      throw new Error(`System ID must be between 0 and ${2 ** 20 - 1}, got ${this.systemId}`)
     }
-    if (moduleId < 0 || moduleId >= 2 ** 20) {
-      throw new Error(`Module ID must be between 0 and ${2 ** 20 - 1}, got ${moduleId}`)
+    if (this.moduleId < 0 || this.moduleId >= 2 ** 20) {
+      throw new Error(`Module ID must be between 0 and ${2 ** 20 - 1}, got ${this.moduleId}`)
     }
-    if (sequenceId < 0 || sequenceId >= 2 ** 15) {
-      throw new Error(`Sequence ID must be between 0 and ${2 ** 15 - 1}, got ${sequenceId}`)
+    if (this.sequenceId < 0 || this.sequenceId >= 2 ** 15) {
+      throw new Error(`Sequence ID must be between 0 and ${2 ** 15 - 1}, got ${this.sequenceId}`)
     }
-    if (version < 0 || version >= 2 ** 4) {
-      throw new Error(`Version must be between 0 and ${2 ** 4 - 1}, got ${version}`)
+    if (this.version < 0 || this.version >= 2 ** 4) {
+      throw new Error(`Version must be between 0 and ${2 ** 4 - 1}, got ${this.version}`)
     }
   }
 
@@ -130,10 +130,10 @@ export class ErrorCode {
     const part1 = (category << 4) | version
 
     return [
-      this.toBase32(part1, 2),
-      this.toBase32(system, 4),
-      this.toBase32(module, 4),
-      this.toBase32(sequenceId, 3),
+      Base32.encode(part1, 2),
+      Base32.encode(system, 4),
+      Base32.encode(module, 4),
+      Base32.encode(sequenceId, 3),
     ].join('-')
   }
 
@@ -147,10 +147,10 @@ export class ErrorCode {
     }
 
     // 解码各部分
-    const part1 = this.fromBase32(normalized.substring(0, 2))
-    const system = this.fromBase32(normalized.substring(2, 6))
-    const module = this.fromBase32(normalized.substring(6, 10))
-    const sequenceId = this.fromBase32(normalized.substring(10, 13))
+    const part1 = Base32.decode(normalized.substring(0, 2))
+    const system = Base32.decode(normalized.substring(2, 6))
+    const module = Base32.decode(normalized.substring(6, 10))
+    const sequenceId = Base32.decode(normalized.substring(10, 13))
 
     // 拆分 Category 和 Version
     const category = (part1 >> 4) & 0x1f
@@ -169,27 +169,5 @@ export class ErrorCode {
     } catch {
       return false
     }
-  }
-
-  private toBase32(value: number, length: number): string {
-    let result = ''
-    let v = value
-    for (let i = 0; i < length; i++) {
-      result = ErrorCode.CROCKFORD_BASE32[v & 0x1f] + result
-      v >>= 5
-    }
-    return result
-  }
-
-  private static fromBase32(str: string): number {
-    let result = 0
-    for (const char of str) {
-      const index = this.CROCKFORD_BASE32.indexOf(char)
-      if (index === -1) {
-        throw new Error(`Invalid Crockford Base32 character: ${char}`)
-      }
-      result = (result << 5) | index
-    }
-    return result
   }
 }

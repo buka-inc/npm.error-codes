@@ -248,6 +248,50 @@ describe('ErrorCode', () => {
     })
   })
 
+  describe('Base32 字符串参数', () => {
+    it('应该支持使用 Base32 字符串构造，与等价数值结果一致', () => {
+      const fromNumber = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 100, moduleId: 50, sequenceId: 200, version: 1 })
+      const str = fromNumber.toString()
+      // 从 toString 提取各段 Base32 字符串
+      const parts = str.split('-')
+      // parts[1] = systemId, parts[2] = moduleId, parts[3] = sequenceId
+      const fromString = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: parts[1], moduleId: parts[2], sequenceId: parts[3], version: 1 })
+
+      expect(fromString.systemId).toBe(fromNumber.systemId)
+      expect(fromString.moduleId).toBe(fromNumber.moduleId)
+      expect(fromString.sequenceId).toBe(fromNumber.sequenceId)
+      expect(fromString.toBigInt()).toBe(fromNumber.toBigInt())
+    })
+
+    it('应该支持混合使用 number 和 string 参数', () => {
+      const fromNumber = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 12345, moduleId: 6789, sequenceId: 100, version: 3 })
+      const str = fromNumber.toString()
+      const parts = str.split('-')
+
+      const mixed = new ErrorCode({ category: ErrorCategory.AUTH, systemId: parts[1], moduleId: 6789, sequenceId: parts[3], version: 3 })
+      expect(mixed.systemId).toBe(12345)
+      expect(mixed.moduleId).toBe(6789)
+      expect(mixed.sequenceId).toBe(100)
+      expect(mixed.toBigInt()).toBe(fromNumber.toBigInt())
+    })
+
+    it('应该支持 version 使用 Base32 字符串', () => {
+      const fromNumber = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 0, moduleId: 0, sequenceId: 0, version: 5 })
+      const fromString = new ErrorCode({ category: ErrorCategory.BUSINESS, systemId: 0, moduleId: 0, sequenceId: 0, version: '5' })
+      expect(fromString.version).toBe(5)
+      expect(fromString.toBigInt()).toBe(fromNumber.toBigInt())
+    })
+
+    it('无效 Base32 字符串应抛出异常', () => {
+      expect(() => new ErrorCode({ category: ErrorCategory.AUTH, systemId: 'INVALID!', moduleId: 0, sequenceId: 0 })).toThrow(
+        'Invalid Crockford Base32 character',
+      )
+      expect(() => new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 'O', sequenceId: 0 })).toThrow(
+        'Invalid Crockford Base32 character',
+      )
+    })
+  })
+
   describe('边界值测试', () => {
     it('应该处理最小值', () => {
       const errorCode = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 })

@@ -25,6 +25,29 @@ const errorCode = new ErrorCode({
 });
 ```
 
+### 使用 Base32 字符串构造
+
+`systemId`、`moduleId`、`sequenceId`、`version` 除了接受数值外，还支持传入 Crockford Base32 字符串，库会自动解码为对应数值。这在从可读格式各段构造错误码时非常方便：
+
+```typescript
+// 可读格式: B0-AAAC-AAAB-AAA
+// 直接使用各段 Base32 字符串
+const errorCode = new ErrorCode({
+  category: ErrorCategory.BUSINESS,
+  systemId: "AAAC", // 等价于 systemId: 2
+  moduleId: "AAAB", // 等价于 moduleId: 1
+  sequenceId: "AAA", // 等价于 sequenceId: 0
+});
+
+// 也可以混合使用 number 和 string
+const mixed = new ErrorCode({
+  category: ErrorCategory.BUSINESS,
+  systemId: "AAAC",
+  moduleId: 1,
+  sequenceId: 0,
+});
+```
+
 ### 转换格式
 
 ```typescript
