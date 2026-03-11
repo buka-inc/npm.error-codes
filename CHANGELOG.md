@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/buka-inc/npm.error-codes/compare/v1.1.0...v1.1.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* wrong error-code encoding ([aa78e23](https://github.com/buka-inc/npm.error-codes/commit/aa78e23b4c66efc7369687fbced9a5a0b5ecbcd9))
+
 ## [1.1.0](https://github.com/buka-inc/npm.error-codes/compare/v1.0.4...v1.1.0) (2026-03-10)
 
 
