@@ -127,7 +127,7 @@ export class ErrorCode {
     const sequenceId = Number(code & BigInt(0x7fff))
 
     // 错位拼接: Category(5bits) + Version(4bits补齐为5bits) = 10bits -> 2字符
-    const part1 = (category << 4) | version
+    const part1 = (category << 5) | version
 
     return [
       Base32.encode(part1, 2),
@@ -153,7 +153,7 @@ export class ErrorCode {
     const sequenceId = Base32.decode(normalized.substring(10, 13))
 
     // 拆分 Category 和 Version
-    const category = (part1 >> 4) & 0x1f
+    const category = (part1 >> 5) & 0x1f
     const version = part1 & 0x0f
 
     return new ErrorCode({ category, systemId: system, moduleId: module, sequenceId, version })

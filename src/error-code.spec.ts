@@ -121,6 +121,26 @@ describe('ErrorCode', () => {
       expect(str.length).toBe(16) // 2-4-4-3 = 13 字符 + 3 个连字符
     })
 
+    it('ErrorCategory 首字符应与 Base32 编码对应字母一致', () => {
+      const expectedFirstChars: [ErrorCategory, string][] = [
+        [ErrorCategory.AUTH, 'A'],
+        [ErrorCategory.BUSINESS, 'B'],
+        [ErrorCategory.CONFLICT, 'C'],
+        [ErrorCategory.DEGRADE, 'D'],
+        [ErrorCategory.FEATURE, 'F'],
+        [ErrorCategory.RATE_LIMIT, 'R'],
+        [ErrorCategory.SYSTEM, 'S'],
+        [ErrorCategory.THIRD_PARTY, 'T'],
+        [ErrorCategory.VALIDATION, 'V'],
+      ]
+
+      for (const [category, expectedChar] of expectedFirstChars) {
+        const errorCode = new ErrorCode({ category, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 })
+        const str = errorCode.toString()
+        expect(str[0]).toBe(expectedChar)
+      }
+    })
+
     it('小数值应该用前导零填充', () => {
       const errorCode = new ErrorCode({ category: ErrorCategory.AUTH, systemId: 0, moduleId: 0, sequenceId: 0, version: 0 })
       const str = errorCode.toString()
