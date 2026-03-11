@@ -1,6 +1,6 @@
 {
   "name": "@buka/error-codes",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The error codes management tool library maintained by Buka Inc.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
